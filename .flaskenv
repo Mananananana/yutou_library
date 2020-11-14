@@ -1,0 +1,2 @@
+FLASK_APP=yutou_library
+FLASK_ENV=development
