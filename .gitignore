@@ -131,3 +131,6 @@ dmypy.json
 # SQLite files
 data-dev.db
 data.db
+
+# Pycharm cache
+/.idea
