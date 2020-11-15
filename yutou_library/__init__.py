@@ -6,6 +6,8 @@ import click
 from yutou_library.settings import config
 from yutou_library.extensions import db
 from yutou_library.models import Attribution, Book, Borrow, Library, LibraryMeta, RType, User
+from yutou_library.libs.error import APIException, HTTPException
+from yutou_library.libs.error_code import ServerError
 
 
 def create_app(config_name=None):
@@ -32,9 +34,19 @@ def register_blueprints(app):
 
 
 def register_error_handlers(app):
-    @app.errorhandler(404)
-    def handle_404():
-        pass
+    @app.errorhandler(Exception)
+    def framework_errorhandler(e):
+        if isinstance(e, APIException):
+            return e
+        if isinstance(e, HTTPException):
+            msg = e.description
+            code = e.code
+            error_code = 1007
+            return APIException(msg=msg, code=code, error_code=error_code)
+        if not app.config['DEBUG']:
+            return ServerError()
+        else:
+            raise e
 
 
 def register_cli_commands(app):
