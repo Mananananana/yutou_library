@@ -18,6 +18,8 @@ class User(db.Model):
     register_date = db.Column("u_date", db.DateTime, server_default=func.now())
     _password = db.Column("u_password", db.String(128), nullable=False)
 
+    attributes = db.relationship("Attribution", back_populates="user", cascade="all")
+
     def set_password(self, raw):
         self._password = generate_password_hash(raw)
 

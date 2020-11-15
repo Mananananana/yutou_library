@@ -13,3 +13,7 @@ class Library(db.Model):
     name = db.Column("l_name", db.String(50), nullable=False)
     status = db.Column("l_status", db.Enum(LibraryStatus), nullable=False)
     create_date = db.Column("l_date", db.DateTime, server_default=func.now())
+
+    attributes = db.relationship("Attribution", back_populates="library", cascade="all")
+    metas = db.relationship("LibraryMeta", back_populates="library", cascade="all")
+    books = db.relationship("Book", back_populates="library", cascade="all")

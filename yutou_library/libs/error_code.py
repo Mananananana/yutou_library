@@ -1,4 +1,4 @@
-from app.libs.error import APIException
+from yutou_library.libs.error import APIException
 
 
 class Success(APIException):
