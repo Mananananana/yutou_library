@@ -8,6 +8,7 @@ from yutou_library.extensions import db
 from yutou_library.models import Attribution, Book, Borrow, Library, LibraryMeta, RType, User
 from yutou_library.libs.error import APIException, HTTPException
 from yutou_library.libs.error_code import ServerError
+from yutou_library.apis.v1 import api_v1
 
 
 def create_app(config_name=None):
@@ -30,7 +31,8 @@ def register_extensions(app):
 
 
 def register_blueprints(app):
-    pass
+    app.register_blueprint(api_v1, subdomain="api", url_prefix="/v1")
+    app.register_blueprint(api_v1, url_prefix="/api/v1")
 
 
 def register_error_handlers(app):

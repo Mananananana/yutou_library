@@ -2,10 +2,8 @@ from enum import Enum
 
 
 class LoginMethod(Enum):
-    by_email = 101
-    by_phone = 102
-    by_wx = 103
-    by_id = 104
+    by_email = "email"
+    by_phone = "phone"
 
 
 class Gender(Enum):

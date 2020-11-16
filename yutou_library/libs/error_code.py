@@ -48,6 +48,48 @@ class Forbidden(APIException):
     msg = "forbidden, not in scope"
 
 
+class EmailAlreadyExist(APIException):
+    code = 400
+    msg = 'This email address has been registered'
+    error_code = 1007
+
+
+class PhoneAlreadyExist(APIException):
+    code = 400
+    msg = 'This phone number has been registered'
+    error_code = 1008
+
+
+class TokenTypeError(APIException):
+    code = 400
+    msg = "Token must be Bearer"
+    error_code = 1009
+
+    def get_headers(self, environ=None):
+        """Get a list og headers."""
+        return [("Content-Type", "application/json; charset=utf-8"), ("WWW-Authenticate", "Bearer")]
+
+
+class TokenMissing(APIException):
+    code = 401
+    msg = "Authorization Failed"
+    error_code = 1010
+
+    def get_headers(self, environ=None):
+        """Get a list og headers."""
+        return [("Content-Type", "application/json; charset=utf-8"), ("WWW-Authenticate", "Bearer")]
+
+
+class InvalidToken(APIException):
+    code = 401
+    msg = "Either the token was expired or invalid."
+    error_code = 1011
+
+    def get_headers(self, environ=None):
+        """Get a list og headers."""
+        return [("Content-Type", "application/json; charset=utf-8"), ("WWW-Authenticate", "Bearer")]
+
+
 class CanNotBorrow(Forbidden):
     error_code = 2001
     msg = "you can't borrow book, check if you borrow too much or have not permission"

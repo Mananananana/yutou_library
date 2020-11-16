@@ -5,9 +5,6 @@ from yutou_library.extensions import db
 
 class Borrow(db.Model):
     __tablename__ = "borrow"
-
-    users = db.relationship("User")
-    book = db.relationship("Book")
     __table_args__ = (
         db.ForeignKeyConstraint(
             ("l_id", "b_id"),
@@ -22,3 +19,6 @@ class Borrow(db.Model):
     borrow_date = db.Column(db.DateTime, server_default=func.now())
     deadtime = db.Column(db.DateTime)
     return_date = db.Column(db.DateTime, nullable=True)
+
+    user = db.relationship("User", back_populates="borrows")
+    book = db.relationship("Book")

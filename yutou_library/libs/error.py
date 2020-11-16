@@ -28,7 +28,7 @@ class APIException(HTTPException):
 
     def get_headers(self, environ=None):
         """Get a list og headers."""
-        return [("Content-Type", "application/json")]
+        return [("Content-Type", "application/json; charset=utf-8")]
 
     @staticmethod
     def get_url_no_param():

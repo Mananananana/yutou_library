@@ -9,8 +9,8 @@ verify_ssl = true
 flask = "*"
 flask-sqlalchemy = "*"
 python-dotenv = "*"
-flask-login = "*"
 wtforms = "*"
+email-validator = "*"
 
 [requires]
 python_version = "3.7"

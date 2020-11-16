@@ -4,7 +4,6 @@ from yutou_library.libs.enums import BookStatus
 
 class Book(db.Model):
     __tablename__ = "book"
-    libraries = db.relationship("Libraries")
 
     bid = db.Column("b_id", db.Integer,
                     db.Sequence("book_bid_seq", start=100000000),

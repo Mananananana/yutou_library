@@ -6,13 +6,13 @@ from yutou_library.libs.enums import LoginMethod
 
 
 class MethodForm(BaseForm):
-    method = IntegerField(validators=[DataRequired()])
+    method = StringField(validators=[DataRequired()])
 
     def validate_method(self, field):
         try:
             self.method.data = LoginMethod(field.data)
         except ValueError:
-            raise ValidationError("method field illegal")
+            raise ValidationError(f"{field.data} is not an illegal method code")
 
 
 class PasswordForm(BaseForm):
