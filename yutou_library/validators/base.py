@@ -1,9 +1,8 @@
 from flask import request
 from wtforms import Form
+from wtforms.validators import StopValidation
 
 from yutou_library.libs.error_code import ParameterException
-
-# TODO: add auth form
 
 
 class BaseForm(Form):
@@ -17,3 +16,18 @@ class BaseForm(Form):
         if not valid:
             raise ParameterException(msg=self.errors)
         return self
+
+
+class Optional(object):
+    field_flags = ('optional', )
+
+    def __init__(self, strip_whitespace=True):
+        if strip_whitespace:
+            self.string_check = lambda s: s.strip()
+        else:
+            self.string_check = lambda s: s
+
+    def __call__(self, form, field):
+        if not self.string_check(field.data):
+            field.errors[:] = []
+            raise StopValidation()

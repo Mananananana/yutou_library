@@ -1,18 +1,20 @@
 from functools import wraps
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
-from flask import current_app, request
+from flask import current_app, request, g
 
 from yutou_library.models import User
 from yutou_library.libs.error_code import TokenTypeError, TokenMissing, InvalidToken
 
 
+# TODO: ADD PERMISSION MANAGEMENT DECORATOR
+
 def generate_token(user, expires_in=3600, **kwargs):
     """
-
-    :param user:
-    :param expires_in:
-    :param kwargs:
+    为用户生成token
+    :param user: 认证用户， User模型实例
+    :param expires_in: token过期时间
+    :param kwargs: 添加到token中的附加参数
     :return:
     """
     s = Serializer(current_app.config["SECRET_KEY"], expires_in=expires_in)
@@ -21,6 +23,11 @@ def generate_token(user, expires_in=3600, **kwargs):
 
 
 def validate_token(token):
+    """
+    验证JWT token
+    :param token: 要验证的token令牌
+    :return: 验证结果
+    """
     s = Serializer(current_app.config["SECRET_KEY"])
     try:
         data = s.loads(token)
@@ -34,14 +41,20 @@ def validate_token(token):
 
 
 def get_token():
+    """
+    从请求首部中获取token，如果获取失败则返回None
+    """
     try:
-        token_type, token = request.header["Authorization"].split(None, 1)
+        token_type, token = request.headers["Authorization"].split(None, 1)
     except (KeyError, ValueError):
         token_type = token = None
     return token_type, token
 
 
 def auth_required(func):
+    """
+    认证保护装饰器，没有token或token错误时禁止用户访问
+    """
     @wraps(func)
     def decorator(*args, **kwargs):
         if request.method != "OPTIONS":

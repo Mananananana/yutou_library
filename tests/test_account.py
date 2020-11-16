@@ -102,6 +102,32 @@ class AccountTestCase(BaseTestCase):
                                                                    "password": "123456"})
         self.assertEqual(response.status_code, 201)
 
+    def test_get_info(self):
+        token = self.get_token()
+        response = self.client.get(url_for("api_v1.get_info"), headers=[("Authorization", "Bearer " + token)])
+        data = response.get_json()
+        self.assertEqual(data["name"], "laichaoqun")
+        self.assertEqual(data["gender"], "male")
+        self.assertEqual(data["phone"], "13912345678")
+        self.assertEqual(data["email"], "123456@qq.com")
+        self.assertTrue(isinstance(data["register_date"], int))
+        self.assertFalse("password" in data or "_password" in data)
+
+    def test_modify_info(self):
+        token = self.get_token()
+        response = self.client.patch(url_for("api_v1.modify_info"),
+                                     json={"gender": "female", "name": "xiaohong"},
+                                     headers=[('Authorization', "Bearer " + token)])
+        self.assertEqual(response.status_code, 201)
+        user = User.query.filter_by(phone="13912345678").first()
+        self.assertIsNotNone(user)
+
+        self.assertIsNotNone(user.gender)
+        self.assertEqual(user.gender.value, "female")
+
+        self.assertIsNotNone(user.name)
+        self.assertEqual(user.name, "xiaohong")
+
 
 if __name__ == "__main__":
     unittest.main()
