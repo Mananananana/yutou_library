@@ -36,6 +36,7 @@ def register():
     user = User.query.filter_by(phone=phone).first()
     if user is not None:
         return PhoneAlreadyExist()
+
     with db.auto_commit():
         user = User(email=email, phone=phone)
         user.set_password(password)
@@ -60,7 +61,7 @@ def login():
 
     if user is not None and user.validate_password(password):
         token, expire_in = generate_token(user)
-        return jsonify(dict(token=token, expire_in=expire_in))
+        return jsonify(dict(token=token, expire_in=expire_in)), 201
     return AuthFailed()
 
 

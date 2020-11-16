@@ -3,6 +3,8 @@ from wtforms import Form
 
 from yutou_library.libs.error_code import ParameterException
 
+# TODO: add auth form
+
 
 class BaseForm(Form):
     def __init__(self):

@@ -31,7 +31,7 @@ def register_extensions(app):
 
 
 def register_blueprints(app):
-    app.register_blueprint(api_v1, subdomain="api", url_prefix="/v1")
+    # app.register_blueprint(api_v1, subdomain="api", url_prefix="/v1")
     app.register_blueprint(api_v1, url_prefix="/api/v1")
 
 
@@ -43,7 +43,7 @@ def register_error_handlers(app):
         if isinstance(e, HTTPException):
             msg = e.description
             code = e.code
-            error_code = 1007
+            error_code = 9001
             return APIException(msg=msg, code=code, error_code=error_code)
         if not app.config['DEBUG']:
             return ServerError()

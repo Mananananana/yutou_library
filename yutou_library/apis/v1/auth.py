@@ -44,12 +44,13 @@ def get_token():
 def auth_required(func):
     @wraps(func)
     def decorator(*args, **kwargs):
-        token_type, token = get_token()
-        if token_type is None or token_type.lower() != "bearer":
-            return TokenTypeError()
-        if token is None:
-            return TokenMissing()
-        if not validate_token(token):
-            return InvalidToken()
+        if request.method != "OPTIONS":
+            token_type, token = get_token()
+            if token_type is None or token_type.lower() != "bearer":
+                return TokenTypeError()
+            if token is None:
+                return TokenMissing()
+            if not validate_token(token):
+                return InvalidToken()
         return func(*args, **kwargs)
     return decorator
