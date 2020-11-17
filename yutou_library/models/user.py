@@ -4,6 +4,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from yutou_library.extensions import db
 from yutou_library.libs.enums import Gender
 
+# TODO: ADD IS_ADMIN PROPERTY
+# TODO: ADD FUNCTION CAN(PERMISSION_NAME)
+
 
 class User(db.Model):
     __tablename__ = "users"

@@ -90,6 +90,24 @@ class InvalidToken(APIException):
         return [("Content-Type", "application/json; charset=utf-8"), ("WWW-Authenticate", "Bearer")]
 
 
+class NotSelectedLibrary(APIException):
+    code = 400
+    msg = "you did't select any library"
+    error_code = 1012
+
+
+class PermissionDenied(APIException):
+    code = 403
+    msg = "you have no permission to do this operation"
+    error_code = 1013
+
+
+class NoAttribution(APIException):
+    code = 500
+    msg = "There is no attribution in database, please contact the administrator"
+    error_code = 998
+
+
 class CanNotBorrow(Forbidden):
     error_code = 2001
     msg = "you can't borrow book, check if you borrow too much or have not permission"

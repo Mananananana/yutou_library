@@ -2,7 +2,7 @@ import unittest
 
 from flask import url_for
 
-from tests.base import BaseTestCase
+from .base import BaseTestCase
 from yutou_library.models import User
 
 

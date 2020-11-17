@@ -3,11 +3,23 @@ from functools import wraps
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 from flask import current_app, request, g
 
-from yutou_library.models import User
-from yutou_library.libs.error_code import TokenTypeError, TokenMissing, InvalidToken
+from yutou_library.models import User, Attribution
+from yutou_library.libs.error_code import TokenTypeError, TokenMissing, InvalidToken, \
+    NoAttribution, NotSelectedLibrary, PermissionDenied
 
 
-# TODO: ADD PERMISSION MANAGEMENT DECORATOR
+PERMISSIONS = ("BORROW", "ORDER", "READ_BOOK_INFO", "UPDATE_BOOK_INFO",
+               "ADD_BOOK", "DELETE_BOOK", "UPDATE_LIBRARY_INFO",
+               "READ_MEMBER_INFO", "UPDATE_MEMBER_INFO", "DELETE_MEMBER")
+
+role_permission_map = {
+    "creator": PERMISSIONS,
+    "admin": ("BORROW", "ORDER", "READ_BOOK_INFO", "UPDATE_BOOK_INFO",
+              "ADD_BOOK", "READ_MEMBER_INFO", "UPDATE_MEMBER_INFO"),
+    "user": ("BORROW", "ORDER", "READ_BOOK_INFO", "READ_MEMBER_INFO"),
+    "under_review": ()
+}
+
 
 def generate_token(user, expires_in=3600, **kwargs):
     """
@@ -67,3 +79,29 @@ def auth_required(func):
                 return InvalidToken()
         return func(*args, **kwargs)
     return decorator
+
+
+def select_library(func):
+    @wraps(func)
+    def decorator(*args, **kwargs):
+        user = g.current_user
+        if user.selecting_library_id is None:
+            return NotSelectedLibrary()
+        return func(*args, **kwargs)
+    return decorator
+
+
+def can(permission_name):
+    def wrapper(func):
+        @wraps(func)
+        def decorator(*args, **kwargs):
+            user = g.current_user
+            attribute = Attribution.query.filter_by(uid=user.id, lid=user.selecting_library_id).first()
+            if attribute is None:
+                return NoAttribution()
+            permissions = role_permission_map[attribute.level.value]
+            if permission_name not in permissions:
+                return PermissionDenied()
+            return func(*args, **kwargs)
+        return decorator
+    return wrapper
