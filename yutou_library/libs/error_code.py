@@ -108,6 +108,12 @@ class NoLibraryId(APIException):
     error_code = 998
 
 
+class AlreadyJoin(APIException):
+    code = 403
+    msg = "You are already join this library"
+    error_code = 1014
+
+
 class CanNotBorrow(Forbidden):
     error_code = 2001
     msg = "you can't borrow book, check if you borrow too much or have not permission"
