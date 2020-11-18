@@ -62,3 +62,4 @@ class SelectLibraryAPI(MethodView):
 
 
 api_v1.add_url_rule("/library", view_func=LibrariesAPI.as_view("create_library"), methods=["POST"])
+api_v1.add_url_rule("/library/<int:lid>", view_func=LibraryAPI.as_view("library_api"), methods=["GET", "PATCH"])

@@ -38,14 +38,11 @@ class AuthTestCase(BaseTestCase):
         @select_library
         def func():
             return "hello world"
-        token = self.get_token()
+        token = self.get_token(self.under_review)
         response = self.client.get(url_for('func'), headers=[("Authorization", "Bearer " + token)])
         self.assertEqual(response.status_code, 400)
 
-        with db.auto_commit():
-            user = User.query.filter_by(email="123456@qq.com").first()
-            library = Library.query.filter_by(name="test_library").first()
-            user.selecting_library = library
+        self.under_review.selecting_library_id = self.library.id
 
         response = self.client.get(url_for("func"), headers=[("Authorization", "Bearer " + token)])
         self.assertEqual(response.status_code, 200)

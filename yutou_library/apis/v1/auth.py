@@ -5,7 +5,7 @@ from flask import current_app, request, g
 
 from yutou_library.models import User, Attribution
 from yutou_library.libs.error_code import TokenTypeError, TokenMissing, InvalidToken, \
-    NoAttribution, NotSelectedLibrary, PermissionDenied
+    NotSelectedLibrary, PermissionDenied, NoLibraryId
 
 
 PERMISSIONS = ("BORROW", "ORDER", "READ_BOOK_INFO", "UPDATE_BOOK_INFO",
@@ -91,14 +91,17 @@ def select_library(func):
     return decorator
 
 
-def can(permission_name):
+def can(permission_name, library_id=None):
     def wrapper(func):
         @wraps(func)
         def decorator(*args, **kwargs):
             user = g.current_user
-            attribute = Attribution.query.filter_by(uid=user.id, lid=user.selecting_library_id).first()
+            lid = library_id or user.selecting_library_id
+            if lid is None:
+                return NoLibraryId()
+            attribute = Attribution.query.filter_by(uid=user.id, lid=lid).first()
             if attribute is None:
-                return NoAttribution()
+                return PermissionDenied()
             permissions = role_permission_map[attribute.level.value]
             if permission_name not in permissions:
                 return PermissionDenied()

@@ -102,9 +102,9 @@ class PermissionDenied(APIException):
     error_code = 1013
 
 
-class NoAttribution(APIException):
+class NoLibraryId(APIException):
     code = 500
-    msg = "There is no attribution in database, please contact the administrator"
+    msg = "There is no corresponding library, please contact the administrator"
     error_code = 998
 
 

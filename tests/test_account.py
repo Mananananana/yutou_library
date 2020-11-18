@@ -106,7 +106,7 @@ class AccountTestCase(BaseTestCase):
         token = self.get_token()
         response = self.client.get(url_for("api_v1.get_info"), headers=[("Authorization", "Bearer " + token)])
         data = response.get_json()
-        self.assertEqual(data["name"], "laichaoqun")
+        self.assertEqual(data["name"], "creator")
         self.assertEqual(data["gender"], "male")
         self.assertEqual(data["phone"], "13912345678")
         self.assertEqual(data["email"], "123456@qq.com")

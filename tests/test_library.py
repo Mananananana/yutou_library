@@ -32,6 +32,8 @@ class LibraryTestCase(BaseTestCase):
         self.assertIsNotNone(attribute)
 
     def test_get_library_info(self):
+        # token = self.get_token()
+        # response = self.client.get(url_for(""))
         pass
 
     def test_update_library_info(self):

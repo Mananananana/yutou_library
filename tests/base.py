@@ -1,21 +1,19 @@
 import unittest
 from datetime import datetime, timedelta
 
-from flask import url_for
-
 from yutou_library import create_app
 from yutou_library.extensions import db
 from yutou_library.models import User, Library, Attribution, RType, Book, Borrow
 from yutou_library.libs.enums import LibraryStatus, AttributeLevel, AttributeStatus, BookStatus
+from yutou_library.apis.v1.auth import generate_token
 
 
 class BaseTestCase(unittest.TestCase):
-    def get_token(self):
-        response = self.client.post(url_for("api_v1.login"), json={"method": "phone",
-                                                                   "phone": '13912345678',
-                                                                   "password": "123456"})
-        data = response.get_json()
-        return data["token"]
+    def get_token(self, user=None):
+        if user is None:
+            user = self.creator
+        token, expires_in = generate_token(user)
+        return token
 
     def generate_test_users(self):
         with db.auto_commit():
@@ -100,6 +98,9 @@ class BaseTestCase(unittest.TestCase):
         self.generate_test_attributions()
         self.generate_test_books()
         self.generate_test_borrows()
+
+        with db.auto_commit():
+            self.creator.selecting_library_id = self.library.id
 
     def setUp(self) -> None:
         self.app = create_app("testing")
