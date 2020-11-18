@@ -3,22 +3,9 @@ from functools import wraps
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 from flask import current_app, request, g
 
-from yutou_library.models import User, Attribution
+from yutou_library.models import User
 from yutou_library.libs.error_code import TokenTypeError, TokenMissing, InvalidToken, \
     NotSelectedLibrary, PermissionDenied, NoLibraryId
-
-
-PERMISSIONS = ("BORROW", "ORDER", "READ_BOOK_INFO", "UPDATE_BOOK_INFO",
-               "ADD_BOOK", "DELETE_BOOK", "UPDATE_LIBRARY_INFO",
-               "READ_MEMBER_INFO", "UPDATE_MEMBER_INFO", "DELETE_MEMBER")
-
-role_permission_map = {
-    "creator": PERMISSIONS,
-    "admin": ("BORROW", "ORDER", "READ_BOOK_INFO", "UPDATE_BOOK_INFO",
-              "ADD_BOOK", "READ_MEMBER_INFO", "UPDATE_MEMBER_INFO"),
-    "user": ("BORROW", "ORDER", "READ_BOOK_INFO", "READ_MEMBER_INFO"),
-    "under_review": ()
-}
 
 
 def generate_token(user, expires_in=3600, **kwargs):
@@ -99,11 +86,7 @@ def can(permission_name, library_id=None):
             lid = library_id or user.selecting_library_id
             if lid is None:
                 return NoLibraryId()
-            attribute = Attribution.query.filter_by(uid=user.id, lid=lid).first()
-            if attribute is None:
-                return PermissionDenied()
-            permissions = role_permission_map[attribute.level.value]
-            if permission_name not in permissions:
+            if not user.can(permission_name, lid):
                 return PermissionDenied()
             return func(*args, **kwargs)
         return decorator

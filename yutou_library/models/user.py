@@ -3,9 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from yutou_library.extensions import db
 from yutou_library.libs.enums import Gender
-
-# TODO: ADD IS_ADMIN PROPERTY
-# TODO: ADD FUNCTION CAN(PERMISSION_NAME)
+from yutou_library.models import Attribution
+from yutou_library.libs.permissions import role_permission_map, ADMINS
 
 
 class User(db.Model):
@@ -33,3 +32,20 @@ class User(db.Model):
         if not self._password:
             return False
         return check_password_hash(self._password, raw)
+
+    def is_admin(self, lid):
+        attribute = Attribution.query.filter_by(uid=self.id, lid=lid or self.selecting_library_id).first()
+        if attribute is None:
+            return False
+        if attribute.level.value not in ADMINS:
+            return False
+        return True
+
+    def can(self, permission_name, lid=None):
+        attribute = Attribution.query.filter_by(uid=self.id, lid=lid or self.selecting_library_id).first()
+        if attribute is None:
+            return False
+        permissions = role_permission_map[attribute.level.value]
+        if permission_name not in permissions:
+            return False
+        return True
