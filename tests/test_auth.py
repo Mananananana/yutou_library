@@ -1,4 +1,3 @@
-# todo: test auth module
 import unittest
 
 from flask import url_for

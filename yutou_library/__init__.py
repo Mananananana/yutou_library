@@ -60,6 +60,13 @@ def register_cli_commands(app):
             db.drop_all()
             click.echo("Drop databases")
         db.create_all()
+        with db.auto_commit():
+            golden = RType(id="golden reader", date=100, num=10)
+            sliver = RType(id="sliver reader", date=50, num=5)
+            copper = RType(id="copper reader", date=30, num=3)
+            db.session.add(golden)
+            db.session.add(sliver)
+            db.session.add(copper)
         click.echo("Create databases")
 
 

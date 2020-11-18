@@ -1,11 +1,12 @@
 import unittest
+from datetime import datetime, timedelta
 
 from flask import url_for
 
 from yutou_library import create_app
 from yutou_library.extensions import db
-from yutou_library.models import User, Library, Attribution, RType
-from yutou_library.libs.enums import LibraryStatus, AttributeLevel, AttributeStatus
+from yutou_library.models import User, Library, Attribution, RType, Book, Borrow
+from yutou_library.libs.enums import LibraryStatus, AttributeLevel, AttributeStatus, BookStatus
 
 
 class BaseTestCase(unittest.TestCase):
@@ -16,6 +17,90 @@ class BaseTestCase(unittest.TestCase):
         data = response.get_json()
         return data["token"]
 
+    def generate_test_users(self):
+        with db.auto_commit():
+            self.creator = User(email="123456@qq.com", phone="13912345678", gender="m", name="creator")
+            self.admin = User(email="234567@qq.com", phone="13812345678", gender="m", name="admin")
+            self.user = User(email="345678@qq.com", phone="13712345678", gender="m", name="user")
+            self.under_review = User(email="456789@qq.com", phone="13612345678", gender="m", name="under_review")
+
+            self.creator.set_password("123456")
+            self.admin.set_password("123456")
+            self.user.set_password("123456")
+            self.under_review.set_password("123456")
+
+            db.session.add(self.creator)
+            db.session.add(self.admin)
+            db.session.add(self.user)
+            db.session.add(self.under_review)
+
+    def generate_test_libraries(self):
+        with db.auto_commit():
+            self.library = Library(name="test_library", status=LibraryStatus.A)
+            db.session.add(self.library)
+
+    def generate_test_rtype(self):
+        with db.auto_commit():
+            golden = RType(id="golden reader", date=100, num=10)
+            sliver = RType(id="sliver reader", date=50, num=5)
+            copper = RType(id="copper reader", date=25, num=3)
+
+            db.session.add(golden)
+            db.session.add(sliver)
+            db.session.add(copper)
+
+    def generate_test_attributions(self):
+        with db.auto_commit():
+            creator_attribute = Attribution(uid=self.creator.id, lid=self.library.id,
+                                            level=AttributeLevel.A, status=AttributeStatus.A,
+                                            type="golden reader")
+            admin_attribute = Attribution(uid=self.admin.id, lid=self.library.id,
+                                          level=AttributeLevel.B, status=AttributeStatus.A,
+                                          type="sliver reader")
+            user_attribute = Attribution(uid=self.user.id, lid=self.library.id,
+                                         level=AttributeLevel.C, status=AttributeStatus.A,
+                                         type="copper reader")
+            under_review_attribute = Attribution(uid=self.under_review.id, lid=self.library.id,
+                                                 level=AttributeLevel.D, status=AttributeStatus.A,
+                                                 type="copper reader")
+
+            db.session.add(creator_attribute)
+            db.session.add(admin_attribute)
+            db.session.add(user_attribute)
+            db.session.add(under_review_attribute)
+
+    def generate_test_books(self):
+        with db.auto_commit():
+            self.normal_book = Book(lid=self.library.id, status=BookStatus.A,
+                                    title="test1", author="nobody", isbn="1234567891011")
+            self.borrowed_book = Book(lid=self.library.id, status=BookStatus.B,
+                                      title="test2", author="nobody", isbn="1234567891011")
+            self.destroyed_book = Book(lid=self.library.id, status=BookStatus.C,
+                                       title="test3", author="nobody", isbn="1234567891011")
+            self.lost_book = Book(lid=self.library.id, status=BookStatus.D,
+                                  title="test4", author="nobody", isbn="1234567891011")
+
+            db.session.add(self.normal_book)
+            db.session.add(self.borrowed_book)
+            db.session.add(self.destroyed_book)
+            db.session.add(self.lost_book)
+
+    def generate_test_borrows(self):
+        with db.auto_commit():
+            borrow_date = datetime.utcnow()
+            borrow = Borrow(id="1", uid=self.creator.id, lid=self.library.id,
+                            bid=self.borrowed_book.id, borrow_date=borrow_date,
+                            return_date=borrow_date+timedelta(3))
+            db.session.add(borrow)
+
+    def generate_test_sample(self):
+        self.generate_test_users()
+        self.generate_test_libraries()
+        self.generate_test_rtype()
+        self.generate_test_attributions()
+        self.generate_test_books()
+        self.generate_test_borrows()
+
     def setUp(self) -> None:
         self.app = create_app("testing")
         self.context = self.app.test_request_context()
@@ -25,36 +110,19 @@ class BaseTestCase(unittest.TestCase):
 
         db.create_all()
 
-        user = User(email="123456@qq.com", phone="13912345678", gender="m", name="laichaoqun")
-        user.set_password("123456")
-        test_library = Library(name="test_library", status=LibraryStatus.A)
-        rtype = RType(id="golden reader", date=100, num=10)
-        rtype2 = RType(id="sliver reader", date=50, num=5)
-        rtype3 = RType(id="copper reader", date=25, num=3)
-
-        db.session.add(user)
-        db.session.add(test_library)
-        db.session.add(rtype)
-        db.session.add(rtype2)
-        db.session.add(rtype3)
-
-        db.session.flush()
-
-        attribute = Attribution(uid=user.id, lid=test_library.id,
-                                level=AttributeLevel.A, status=AttributeStatus.A,
-                                type=rtype.id)
-        db.session.add(attribute)
-        db.session.commit()
+        self.generate_test_sample()
 
     def tearDown(self) -> None:
         db.drop_all()
         self.context.pop()
 
     def test_base(self):
-        self.assertEqual(User.query.count(), 1)
+        self.assertEqual(User.query.count(), 4)
         self.assertEqual(Library.query.count(), 1)
         self.assertEqual(RType.query.count(), 3)
-        self.assertEqual(Attribution.query.count(), 1)
+        self.assertEqual(Attribution.query.count(), 4)
+        self.assertEqual(Book.query.count(), 4)
+        self.assertEqual(Borrow.query.count(), 1)
 
 
 if __name__ == "__main__":
