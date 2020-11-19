@@ -87,9 +87,9 @@ class LibraryTestCase(BaseTestCase):
         self.assertEqual(attribute.type, "copper reader")
 
     def test_select_library(self):
-        self.assertIsNone(self.admin.selecting_library_id)
+        self.assertEqual(self.admin.selecting_library_id, self.library.id)
         token = self.get_token(self.admin)
-        lid = self.library.id
+        lid = self.library2.id
         response = self.client.get(url_for("api_v1.select_library", lid=lid),
                                    headers=[("Authorization", "Bearer " + token)])
         self.assertEqual(response.status_code, 201)

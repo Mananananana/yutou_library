@@ -48,7 +48,9 @@ class BaseTestCase(unittest.TestCase):
     def generate_test_libraries(self):
         with db.auto_commit():
             self.library = Library(name="test_library", status=LibraryStatus.A)
+            self.library2 = Library(name="test_library2", status=LibraryStatus.A)
             db.session.add(self.library)
+            db.session.add(self.library2)
 
     def generate_test_rtype(self):
         with db.auto_commit():
@@ -75,10 +77,15 @@ class BaseTestCase(unittest.TestCase):
                                                  level=AttributeLevel.D, status=AttributeStatus.A,
                                                  type="copper reader")
 
+            admin_attribute2 = Attribution(uid=self.admin.id, lid=self.library2.id,
+                                           level=AttributeLevel.A, status=AttributeStatus.A,
+                                           type="golden reader")
+
             db.session.add(creator_attribute)
             db.session.add(admin_attribute)
             db.session.add(user_attribute)
             db.session.add(under_review_attribute)
+            db.session.add(admin_attribute2)
 
     def generate_test_books(self):
         with db.auto_commit():
@@ -101,7 +108,7 @@ class BaseTestCase(unittest.TestCase):
             borrow_date = datetime.utcnow()
             borrow = Borrow(id="1", uid=self.creator.id, lid=self.library.id,
                             bid=self.borrowed_book.id, borrow_date=borrow_date,
-                            return_date=borrow_date+timedelta(3))
+                            deadtime=borrow_date+timedelta(3))
             db.session.add(borrow)
 
     def generate_test_sample(self):
@@ -133,14 +140,6 @@ class BaseTestCase(unittest.TestCase):
     def tearDown(self) -> None:
         db.drop_all()
         self.context.pop()
-
-    def test_base(self):
-        self.assertEqual(User.query.count(), 4)
-        self.assertEqual(Library.query.count(), 1)
-        self.assertEqual(RType.query.count(), 3)
-        self.assertEqual(Attribution.query.count(), 4)
-        self.assertEqual(Book.query.count(), 4)
-        self.assertEqual(Borrow.query.count(), 1)
 
 
 if __name__ == "__main__":
