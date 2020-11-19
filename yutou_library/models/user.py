@@ -23,6 +23,7 @@ class User(db.Model):
 
     attributes = db.relationship("Attribution", back_populates="user", cascade="all")
     borrows = db.relationship("Borrow", back_populates="user")
+    orders = db.relationship("Order", back_populates="user")
     selecting_library = db.relationship("Library")
 
     def set_password(self, raw):

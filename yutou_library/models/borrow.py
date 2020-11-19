@@ -5,12 +5,6 @@ from yutou_library.extensions import db
 
 class Borrow(db.Model):
     __tablename__ = "borrow"
-    # __table_args__ = (
-    #     db.ForeignKeyConstraint(
-    #         ("l_id", "b_id"),
-    #         ["book.l_id", "book.b_id"]
-    #     ),
-    # )
 
     id = db.Column(db.String(50), primary_key=True)
     uid = db.Column("u_id", db.Integer, db.ForeignKey("users.u_id"), nullable=False)
