@@ -1,4 +1,3 @@
-# todo: finish library module
 from flask import g, jsonify
 from flask.views import MethodView
 

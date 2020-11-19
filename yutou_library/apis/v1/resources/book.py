@@ -1,34 +1,74 @@
 from flask.views import MethodView
-from flask import jsonify
+from flask import jsonify, g
 
 from yutou_library.apis.v1 import api_v1
-from yutou_library.apis.v1.auth import auth_required
+from yutou_library.apis.v1.auth import auth_required, select_library, can
 from yutou_library.models import Book
-from yutou_library.apis.v1.schemas import book_schema
+from yutou_library.apis.v1.schemas import book_schema, books_schema
+from yutou_library.libs.error_code import BookNotFound, Success, DeleteSuccess
+from yutou_library.validators.book import BookForm, BookUpdateForm
+from yutou_library.libs.enums import BookStatus
+from yutou_library.extensions import db
 
 
 # TODO: FINISH BOOK API
 
 class BookAPI(MethodView):
-    decorators = [auth_required]
+    decorators = [select_library, auth_required]
 
+    def get_book(self, bid):
+        user = g.current_user
+        lid = user.selecting_library_id
+        book = Book.query.filter_by(id=bid, lid=lid).first()
+        if book is None:
+            return BookNotFound()
+        return book
+
+    @can("READ_BOOK_INFO")
     def get(self, bid):
-        book = Book.query.get_or_404(bid)
-        return jsonify(book_schema(book))
+        book = self.get_book(bid)
+        return jsonify(book_schema(book)), 200
 
+    @can("UPDATE_BOOK_INFO")
     def patch(self, bid):
-        pass
+        book = self.get_book(bid)
+        form = BookUpdateForm().validate_for_api()
+        with db.auto_commit():
+            book.isbn = form.isbn.data
+            book.status = form.status.data
+            book.title = form.title.data
+            book.author = form.author.data
+        return Success()
 
+    @can("DELETE_BOOK")
     def delete(self, bid):
-        pass
+        book = self.get_book(bid)
+        with db.auto_commit():
+            db.session.delete(book)
+        return DeleteSuccess()
 
 
 class BooksAPI(MethodView):
-    def get(self):
-        pass
+    decorators = [select_library, auth_required]
 
+    @can("READ_BOOK_INFO")
+    def get(self):
+        user = g.current_user
+        lid = user.selecting_library_id
+        books = Book.query.filter_by(lid=lid).all()
+        return jsonify(books_schema(books)), 200
+
+    @can("ADD_BOOK")
     def post(self):
-        pass
+        form = BookForm().validate_for_api()
+        isbn = form.isbn.data
+        title = form.title.data
+        author = form.author.data
+        lid = g.current_user.selecting_library_id
+        with db.auto_commit():
+            book = Book(lid=lid, isbn=isbn, status=BookStatus.A, title=title, author=author)
+            db.session.add(book)
+        return Success()
 
 
 class BookDetailAPI(MethodView):

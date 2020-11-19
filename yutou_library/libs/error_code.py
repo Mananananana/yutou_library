@@ -114,6 +114,12 @@ class AlreadyJoin(APIException):
     error_code = 1014
 
 
+class BookNotFound(APIException):
+    code = 404
+    msg = "This book is not in this library"
+    error_code = 1015
+
+
 class CanNotBorrow(Forbidden):
     error_code = 2001
     msg = "you can't borrow book, check if you borrow too much or have not permission"

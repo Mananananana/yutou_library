@@ -1,11 +1,24 @@
 import unittest
 from datetime import datetime, timedelta
 
+from flask.testing import FlaskClient as _FlaskClient
+
 from yutou_library import create_app
 from yutou_library.extensions import db
 from yutou_library.models import User, Library, Attribution, RType, Book, Borrow
 from yutou_library.libs.enums import LibraryStatus, AttributeLevel, AttributeStatus, BookStatus
 from yutou_library.apis.v1.auth import generate_token
+
+
+class FlaskClient(_FlaskClient):
+    def open(self, *args, **kwargs):
+        token = kwargs.pop("token", None)
+        if token:
+            authorization = [("Authorization", "Bearer " + token)]
+            headers = kwargs.get("headers", [])
+            headers.extend(authorization)
+            kwargs["headers"] = headers
+        return super(_FlaskClient, self).open(*args, **kwargs)
 
 
 class BaseTestCase(unittest.TestCase):
@@ -101,9 +114,13 @@ class BaseTestCase(unittest.TestCase):
 
         with db.auto_commit():
             self.creator.selecting_library_id = self.library.id
+            self.admin.selecting_library_id = self.library.id
+            self.user.selecting_library_id = self.library.id
 
     def setUp(self) -> None:
         self.app = create_app("testing")
+        self.app.test_client_class = FlaskClient
+
         self.context = self.app.test_request_context()
         self.context.push()
         self.client = self.app.test_client()
