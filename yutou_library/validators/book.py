@@ -5,7 +5,6 @@ from yutou_library.validators.base import BaseForm, Optional
 from yutou_library.libs.enums import BookStatus
 
 
-# todo: test BookForm
 class BookForm(BaseForm):
     title = StringField(validators=[Length(min=1, max=150)])
     author = StringField(validators=[Length(min=1, max=150)])

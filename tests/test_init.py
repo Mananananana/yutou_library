@@ -1,5 +1,3 @@
-# todo: test __init__ file
-
 import unittest
 
 from werkzeug.exceptions import BadRequest

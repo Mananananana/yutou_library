@@ -6,5 +6,3 @@ from .librarymeta import LibraryMeta
 from .rtype import RType
 from .order import Order
 from .user import User
-
-# TODO: ADD ORDER MODEL

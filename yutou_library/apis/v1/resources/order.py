@@ -1,4 +1,3 @@
-# todo: finish order module
 from datetime import datetime, timedelta
 
 from flask.views import MethodView
