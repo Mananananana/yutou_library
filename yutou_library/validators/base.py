@@ -28,6 +28,6 @@ class Optional(object):
             self.string_check = lambda s: s
 
     def __call__(self, form, field):
-        if not self.string_check(field.data):
+        if field.data is None or not self.string_check(field.data):
             field.errors[:] = []
             raise StopValidation()
