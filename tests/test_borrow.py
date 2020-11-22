@@ -21,6 +21,7 @@ class BorrowTestCase(BaseTestCase):
         self.assertEqual(borrow.uid, self.user.id)
         self.assertEqual(borrow.lid, self.normal_book.lid)
         self.assertIsNone(borrow.return_date)
+        self.assertEqual(self.normal_book.status, BookStatus.B)
 
     def test_return_book(self):
         response = self.client.patch(url_for("api_v1.borrow_api", bid=self.borrowed_book.id),

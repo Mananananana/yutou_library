@@ -21,18 +21,16 @@ class BorrowAPI(MethodView):
         user = g.current_user
         if not user.can("BORROW", lid):
             return PermissionDenied()
-        if book.status != BookStatus.A:
-            return CanNotBorrow()
-        borrow_count = Borrow.query.filter_by(uid=user.id, lid=lid, return_date=None).count()
-        attribute = Attribution.query.filter_by(uid=user.id, lid=lid).first()
-        rtype = attribute.rtype
-        if borrow_count >= rtype.num:
+        borrow_date = user.can_borrow_or_order_in(lid)
+        if book.status != BookStatus.A or \
+                borrow_date is False:
             return CanNotBorrow()
 
         with db.auto_commit():
             now = datetime.utcnow()
+            book.status = BookStatus.B
             borrow = Borrow(id=str(int(now.timestamp())), uid=user.id,
-                            lid=lid, bid=bid, borrow_date=now, deadtime=now + timedelta(rtype.date))
+                            lid=lid, bid=bid, borrow_date=now, deadtime=now + timedelta(borrow_date))
             db.session.add(borrow)
         return Success()
 

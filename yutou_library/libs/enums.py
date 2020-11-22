@@ -34,3 +34,4 @@ class BookStatus(Enum):
     B = "borrowed"
     C = "destroyed"
     D = "lost"
+    E = "ordered"

@@ -123,3 +123,13 @@ class BookNotFound(APIException):
 class CanNotBorrow(Forbidden):
     error_code = 2001
     msg = "you can not borrow this book"
+
+
+class CanNotOrder(Forbidden):
+    error_code = 2002
+    msg = "you can not order this book"
+
+
+class CanNotDelete(Forbidden):
+    error_code = 2003
+    msg = "you can not delete this resource"

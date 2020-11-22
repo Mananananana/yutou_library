@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from yutou_library.extensions import db
 from yutou_library.libs.enums import Gender
-from yutou_library.models import Attribution
+from yutou_library.models import Attribution, Library, Borrow, Order
 from yutou_library.libs.permissions import role_permission_map, ADMINS
 
 
@@ -50,3 +50,24 @@ class User(db.Model):
         if permission_name not in permissions:
             return False
         return True
+
+    def can_borrow_or_order_in(self, lid, borrow=True):
+        library = Library.query.get(lid)
+        if not library:
+            return False
+        attribute = Attribution.query.filter_by(uid=self.id, lid=lid).first()
+        if not attribute:
+            return False
+        permissions = role_permission_map[attribute.level.value]
+        if borrow:
+            if "BORROW" not in permissions:
+                return False
+        else:
+            if "ORDER" not in permissions:
+                return False
+        borrow_count = Borrow.query.filter_by(uid=self.id, lid=lid).count()
+        order_count = Order.query.filter_by(uid=self.id, lid=lid).count()
+        rtype = attribute.rtype
+        if borrow_count + order_count >= rtype.num:
+            return False
+        return rtype.date
