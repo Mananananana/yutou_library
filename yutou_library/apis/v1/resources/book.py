@@ -1,14 +1,20 @@
+import os
+from time import time
+
 from flask.views import MethodView
 from flask import jsonify, g
+from pymongo import MongoClient
 
 from yutou_library.apis.v1 import api_v1
 from yutou_library.apis.v1.auth import auth_required, select_library, can
 from yutou_library.models import Book
 from yutou_library.apis.v1.schemas import book_schema, books_schema
-from yutou_library.libs.error_code import BookNotFound, Success, DeleteSuccess
+from yutou_library.libs.error_code import BookNotFound, Success, DeleteSuccess, ParameterException
 from yutou_library.validators.book import BookForm, BookUpdateForm
 from yutou_library.libs.enums import BookStatus
 from yutou_library.extensions import db
+from yutou_library.spider import BookSpider
+from yutou_library.libs.helper import get_legal_isbn
 
 
 # TODO: FINISH BOOK API
@@ -72,11 +78,48 @@ class BooksAPI(MethodView):
 
 
 class BookDetailAPI(MethodView):
+    def __init__(self):
+        username = os.getenv("MONGO_USERNAME")
+        password = os.getenv("MONGO_PASSWORD")
+        host = os.getenv("MONGO_HOST")
+        port = os.getenv("MONGO_PORT")
+        database = os.getenv("MONGO_DATABASE")
+        collection = os.getenv("MONGO_COLLECTION")
+
+        uri = f"mongodb://{username}:{password}@{host}:{port}"
+        self.client = MongoClient(uri)
+        self.douban = self.client[database]
+        self.book = self.douban[collection]
+        self.spider = BookSpider()
+
+        super().__init__()
+
+    def _need_to_update(self, doc):
+        if "_tm" in doc:
+            current_time = time()
+            update_time = doc["_tm"]
+            return (current_time - update_time) > 10 * 24 * 60 * 60 * 1000
+        return True
+
     def get(self, isbn):
         # TODO： WRITE BOOK SPIDER
-        pass
+        isbn = get_legal_isbn(str(isbn))
+        if not isbn:
+            return ParameterException()
+        doc = self.book.find_one({"_id": isbn})
+        if doc is None:
+            doc = self.spider.get_book_info(isbn)
+            if doc is not None and len(doc) > 0:
+                self.book.insert_one(doc)
+            else:
+                return BookNotFound()
+        else:
+            if self._need_to_update(doc):
+                doc = self.spider.get_book_info(isbn)
+                self.book.update_one({"_id": isbn}, doc)
+        return doc
 
 
 api_v1.add_url_rule("/book/<int:bid>", view_func=BookAPI.as_view("book_api"), methods=["GET", "PATCH", "DELETE"])
 api_v1.add_url_rule("/book", view_func=BooksAPI.as_view("books_api"), methods=["GET", "POST"])
-api_v1.add_url_rule("/book/<int:isbn>/detail", view_func=BookDetailAPI.as_view("book_detail_api", methods=["GET"]))
+api_v1.add_url_rule("/book/<int:isbn>/detail", view_func=BookDetailAPI.as_view("book_detail_api"), methods=["GET"])
