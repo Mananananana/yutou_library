@@ -15,6 +15,7 @@ email-validator = "*"
 requests = "*"
 pyquery = "*"
 pymongo = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.7"

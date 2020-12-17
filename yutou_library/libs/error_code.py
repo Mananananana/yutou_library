@@ -120,6 +120,12 @@ class BookNotFound(APIException):
     error_code = 1015
 
 
+class IllegalISBN(APIException):
+    code = 401
+    msg = "This isbn is illegal, please check your input"
+    error_code = 1016
+
+
 class CanNotBorrow(Forbidden):
     error_code = 2001
     msg = "you can not borrow this book"

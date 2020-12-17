@@ -41,7 +41,7 @@ class BookSpider:
             book_info = self._parse_html(html)
             return book_info
         except Exception:
-            return {}
+            raise
 
     def _is_legal_isbn(self, isbn):
         if len(isbn) > 13:
@@ -72,7 +72,7 @@ class BookSpider:
         if synopsises_div is None or len(synopsises_div) == 0:
             synopsises_div = doc("#link-report .intro p")
         if len(synopsises_div) != 0:
-            synopsises = "\n".join(map(lambda x: x.text, synopsises_div))
+            synopsises = "\n".join(map(lambda x: x.text or "", synopsises_div))
             res["简介"] = synopsises
 
         author_info_div = doc("div:not(#link-report)[class='indent '] .all .intro p")

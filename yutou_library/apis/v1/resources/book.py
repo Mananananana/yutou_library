@@ -9,7 +9,7 @@ from yutou_library.apis.v1 import api_v1
 from yutou_library.apis.v1.auth import auth_required, select_library, can
 from yutou_library.models import Book
 from yutou_library.apis.v1.schemas import book_schema, books_schema
-from yutou_library.libs.error_code import BookNotFound, Success, DeleteSuccess, ParameterException
+from yutou_library.libs.error_code import BookNotFound, Success, DeleteSuccess, IllegalISBN
 from yutou_library.validators.book import BookForm, BookUpdateForm
 from yutou_library.libs.enums import BookStatus
 from yutou_library.extensions import db
@@ -79,6 +79,8 @@ class BooksAPI(MethodView):
 
 class BookDetailAPI(MethodView):
     def __init__(self):
+        super().__init__()
+
         username = os.getenv("MONGO_USERNAME")
         password = os.getenv("MONGO_PASSWORD")
         host = os.getenv("MONGO_HOST")
@@ -92,8 +94,6 @@ class BookDetailAPI(MethodView):
         self.book = self.douban[collection]
         self.spider = BookSpider()
 
-        super().__init__()
-
     def _need_to_update(self, doc):
         if "_tm" in doc:
             current_time = time()
@@ -105,7 +105,7 @@ class BookDetailAPI(MethodView):
         # TODO： WRITE BOOK SPIDER
         isbn = get_legal_isbn(str(isbn))
         if not isbn:
-            return ParameterException()
+            return IllegalISBN()
         doc = self.book.find_one({"_id": isbn})
         if doc is None:
             doc = self.spider.get_book_info(isbn)

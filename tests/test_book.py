@@ -79,7 +79,7 @@ class BookTestCase(BaseTestCase):
         data = response.get_json()
         self.assertEqual(data["size"], len(data["books"]))
 
-    def test_book_search(self):
+    def test_get_book_detail(self):
         pass
 
 
