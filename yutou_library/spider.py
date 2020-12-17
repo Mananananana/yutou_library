@@ -1,3 +1,4 @@
+import os
 from random import choice
 from time import time
 
@@ -41,7 +42,10 @@ class BookSpider:
             book_info = self._parse_html(html)
             return book_info
         except Exception:
-            raise
+            if os.getenv("DEBUG", True):
+                raise
+            else:
+                return {}
 
     def _is_legal_isbn(self, isbn):
         if len(isbn) > 13:

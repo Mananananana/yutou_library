@@ -1,2 +1,3 @@
 FLASK_APP=yutou_library
-FLASK_ENV=production
+FLASK_ENV=development
+FLASK_CONFIG=development
