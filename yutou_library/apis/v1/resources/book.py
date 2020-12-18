@@ -81,14 +81,10 @@ class BookDetailAPI(MethodView):
     def __init__(self):
         super().__init__()
 
-        username = os.getenv("MONGO_USERNAME")
-        password = os.getenv("MONGO_PASSWORD")
-        host = os.getenv("MONGO_HOST")
-        port = os.getenv("MONGO_PORT")
-        database = os.getenv("MONGO_DATABASE")
-        collection = os.getenv("MONGO_COLLECTION")
+        uri = os.getenv("MONGO_URI", "mongodb://test:test@localhost:27017")
+        database = os.getenv("MONGO_DATABASE", "test")
+        collection = os.getenv("MONGO_COLLECTION", "book")
 
-        uri = f"mongodb://{username}:{password}@{host}:{port}"
         self.client = MongoClient(uri)
         self.douban = self.client[database]
         self.book = self.douban[collection]

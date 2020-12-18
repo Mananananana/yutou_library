@@ -80,7 +80,20 @@ class BookTestCase(BaseTestCase):
         self.assertEqual(data["size"], len(data["books"]))
 
     def test_get_book_detail(self):
-        pass
+        response = self.client.get(url_for("api_v1.book_detail_api", isbn=123456798))
+        self.assertEqual(response.status_code, 401)
+
+        response = self.client.get(url_for("api_v1.book_detail_api", isbn=9787302444541))
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue("_id" in data)
+        self.assertEqual(data["_id"], "9787302444541")
+
+        response = self.client.get(url_for("api_v1.book_detail_api", isbn=9787302444543))
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue("_id" in data)
+        self.assertEqual(data["_id"], "9787302444541")
 
 
 if __name__ == '__main__':
