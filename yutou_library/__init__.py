@@ -1,4 +1,7 @@
 import os
+import logging
+from logging.handlers import RotatingFileHandler
+from traceback import format_exc
 
 from flask import Flask
 import click
@@ -9,6 +12,9 @@ from yutou_library.models import Attribution, Book, Borrow, Library, LibraryMeta
 from yutou_library.libs.error import APIException, HTTPException
 from yutou_library.libs.error_code import ServerError
 from yutou_library.apis.v1 import api_v1
+
+
+basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
 def create_app(config_name=None):
@@ -22,6 +28,7 @@ def create_app(config_name=None):
     register_error_handlers(app)
     register_cli_commands(app)
     register_context_processor(app)
+    register_logging(app)
 
     return app
 
@@ -31,7 +38,8 @@ def register_extensions(app):
 
 
 def register_blueprints(app):
-    # app.register_blueprint(api_v1, subdomain="api", url_prefix="/v1")
+    if not app.debug:
+        app.register_blueprint(api_v1, subdomain="api", url_prefix="/v1")
     app.register_blueprint(api_v1, url_prefix="/api/v1")
 
 
@@ -45,6 +53,7 @@ def register_error_handlers(app):
             code = e.code
             error_code = 9001
             return APIException(msg=msg, code=code, error_code=error_code)
+        app.logger.error(format_exc())
         if not app.config['DEBUG']:
             return ServerError()
         else:
@@ -78,3 +87,18 @@ def register_context_processor(app):
                     Book=Book, Borrow=Borrow,
                     Library=Library, LibraryMeta=LibraryMeta,
                     RType=RType, User=User, Order=Order)
+
+
+def register_logging(app):
+    app.logger.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler = RotatingFileHandler(os.path.join(basedir, "logs/yutou.log"), maxBytes=10 * 1024 * 1024,
+                                       backupCount=10)
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.INFO)
+
+    if not app.debug:
+        app.logger.addHandler(file_handler)
+    else:
+        file_handler.close()

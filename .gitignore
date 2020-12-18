@@ -134,3 +134,6 @@ data.db
 
 # Pycharm cache
 /.idea
+
+# Logs
+/logs
