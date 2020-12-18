@@ -26,7 +26,7 @@ def cal_13bit_isbn(isbn):
         sum += ord(isbn[i]) - ord('0')
     for i in range(1, 13, 2):
         sum += 3 * (ord(isbn[i]) - ord('0'))
-    return isbn[:12] + str(10 - sum % 10)
+    return isbn[:12] + str((10 - sum % 10) % 10)
 
 
 if __name__ == "__main__":

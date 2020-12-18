@@ -95,6 +95,12 @@ class BookTestCase(BaseTestCase):
         self.assertTrue("_id" in data)
         self.assertEqual(data["_id"], "9787302444541")
 
+        response = self.client.get(url_for("api_v1.book_detail_api", isbn=9789578013230))
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertTrue("_id" in data)
+        self.assertEqual(data["_id"], "9789578013230")
+
 
 if __name__ == '__main__':
     unittest.main()
