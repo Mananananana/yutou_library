@@ -113,7 +113,7 @@ class BookDetailAPI(MethodView):
             if self._need_to_update(doc):
                 doc = self.spider.get_book_info(isbn)
                 self.book.update_one({"_id": isbn}, doc)
-        return doc
+        return jsonify(doc)
 
 
 api_v1.add_url_rule("/book/<int:bid>", view_func=BookAPI.as_view("book_api"), methods=["GET", "PATCH", "DELETE"])

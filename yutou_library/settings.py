@@ -8,6 +8,7 @@ class BasicConfig:
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///:memory:')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY", "secret key")
+    JSON_AS_ASCII = False
 
 
 class DevelopmentConfig(BasicConfig):
