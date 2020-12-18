@@ -22,8 +22,10 @@ class InitTestCase(BaseTestCase):
             1/0
         response = self.client.get(url_for("func"))
         self.assertEqual(response.status_code, 400)
+
         response = self.client.get(url_for("func2"))
         self.assertEqual(response.status_code, 201)
+
         debug = self.app.config["DEBUG"]
         self.app.config["DEBUG"] = False
         response = self.client.get(url_for("func3"))

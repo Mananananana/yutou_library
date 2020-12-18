@@ -53,8 +53,9 @@ def register_error_handlers(app):
             code = e.code
             error_code = 9001
             return APIException(msg=msg, code=code, error_code=error_code)
-        app.logger.error(format_exc())
-        if not app.config['DEBUG']:
+        if not app.debug:
+            if not app.config["TESTING"]:
+                app.logger.error(format_exc())
             return ServerError()
         else:
             raise e

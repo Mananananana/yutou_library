@@ -22,6 +22,7 @@ class ProductionConfig(BasicConfig):
 
 class TestingConfig(BasicConfig):
     DEBUG = True
+    TESTING = True
 
 
 config = {
