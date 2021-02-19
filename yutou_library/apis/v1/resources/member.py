@@ -14,7 +14,7 @@ class MemberAPI(MethodView):
     decorators = [auth_required]
 
     @can("UPDATE_MEMBER_INFO")
-    def patch(self, uid):
+    def put(self, uid):
         form = MemberForm().validate_for_api()
         level = form.level.data
         status = form.status.data
@@ -51,5 +51,5 @@ class MembersAPI(MethodView):
         return jsonify(attributes_schema(attributes)), 200
 
 
-api_v1.add_url_rule("/member/<int:uid>", view_func=MemberAPI.as_view("member_api"), methods=["PATCH", "DELETE"])
+api_v1.add_url_rule("/member/<int:uid>", view_func=MemberAPI.as_view("member_api"), methods=["PUT", "DELETE"])
 api_v1.add_url_rule("/member", view_func=MembersAPI.as_view("members_api"), methods=["GET"])

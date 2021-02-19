@@ -75,7 +75,7 @@ def login():
     return AuthFailed()
 
 
-@api_v1.route("/account", methods=["PATCH"])
+@api_v1.route("/account", methods=["PUT"])
 @auth_required
 def modify_info():
     form = UserForm().validate_for_api()

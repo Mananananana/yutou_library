@@ -34,7 +34,7 @@ class BorrowAPI(MethodView):
             db.session.add(borrow)
         return Success()
 
-    def patch(self, bid):
+    def put(self, bid):
         book = Book.query.get_or_404(bid)
         lid = book.lid
         user = g.current_user
@@ -56,5 +56,5 @@ class BorrowsAPI(MethodView):
         return jsonify(borrows_schema(borrows)), 200
 
 
-api_v1.add_url_rule("/borrow/<int:bid>", view_func=BorrowAPI.as_view("borrow_api"), methods=["POST", "PATCH"])
+api_v1.add_url_rule("/borrow/<int:bid>", view_func=BorrowAPI.as_view("borrow_api"), methods=["POST", "PUT"])
 api_v1.add_url_rule("/borrow", view_func=BorrowsAPI.as_view("borrows_api"), methods=["GET"])

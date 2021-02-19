@@ -36,7 +36,7 @@ class BookAPI(MethodView):
         return jsonify(book_schema(book)), 200
 
     @can("UPDATE_BOOK_INFO")
-    def patch(self, bid):
+    def put(self, bid):
         book = self.get_book(bid)
         form = BookUpdateForm().validate_for_api()
         with db.auto_commit():
@@ -116,6 +116,6 @@ class BookDetailAPI(MethodView):
         return jsonify(doc)
 
 
-api_v1.add_url_rule("/book/<int:bid>", view_func=BookAPI.as_view("book_api"), methods=["GET", "PATCH", "DELETE"])
+api_v1.add_url_rule("/book/<int:bid>", view_func=BookAPI.as_view("book_api"), methods=["GET", "PUT", "DELETE"])
 api_v1.add_url_rule("/book", view_func=BooksAPI.as_view("books_api"), methods=["GET", "POST"])
 api_v1.add_url_rule("/book/<int:isbn>/detail", view_func=BookDetailAPI.as_view("book_detail_api"), methods=["GET"])
