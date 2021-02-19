@@ -86,4 +86,4 @@ class SelectLibraryAPI(MethodView):
 api_v1.add_url_rule("/library", view_func=LibrariesAPI.as_view("libraries_api"), methods=["GET", "POST"])
 api_v1.add_url_rule("/library/<int:lid>", view_func=LibraryAPI.as_view("library_api"), methods=["GET", "PATCH"])
 api_v1.add_url_rule("/library/<int:lid>/join", view_func=JoinLibraryAPI.as_view("join_library"), methods=["GET"])
-api_v1.add_url_rule("/library/<int:lid>/selected", view_func=SelectLibraryAPI.as_view("select_library"), methods=["GET"])
+api_v1.add_url_rule("/library/<int:lid>/select", view_func=SelectLibraryAPI.as_view("select_library"), methods=["GET"])
