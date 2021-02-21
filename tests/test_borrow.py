@@ -24,8 +24,8 @@ class BorrowTestCase(BaseTestCase):
         self.assertEqual(self.normal_book.status, BookStatus.B)
 
     def test_return_book(self):
-        response = self.client.patch(url_for("api_v1.borrow_api", bid=self.borrowed_book.id),
-                                     token=self.get_token(self.creator))
+        response = self.client.put(url_for("api_v1.borrow_api", bid=self.borrowed_book.id),
+                                   token=self.get_token(self.creator))
         self.assertEqual(response.status_code, 201)
         self.assertEqual(self.borrowed_book.status, BookStatus.A)
         borrow = Borrow.query.filter_by(bid=self.borrowed_book.id).first()

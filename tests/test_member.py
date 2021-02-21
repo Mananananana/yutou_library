@@ -9,8 +9,8 @@ from yutou_library.libs.enums import AttributeLevel, AttributeStatus
 
 class MemberTestCase(BaseTestCase):
     def test_update_member_info(self):
-        response = self.client.patch(url_for("api_v1.member_api", uid=self.creator.id),
-                                     json={}, token=self.get_token())
+        response = self.client.put(url_for("api_v1.member_api", uid=self.creator.id),
+                                   json={}, token=self.get_token())
         self.assertEqual(response.status_code, 201)
         attribute = Attribution.query.filter_by(lid=self.library.id, uid=self.creator.id).first()
         self.assertIsNotNone(attribute)
@@ -18,8 +18,8 @@ class MemberTestCase(BaseTestCase):
         self.assertEqual(attribute.status, AttributeStatus.A)
         self.assertEqual(attribute.type, "golden reader")
 
-        response = self.client.patch(url_for("api_v1.member_api", uid=self.creator.id), token=self.get_token(),
-                                     json={
+        response = self.client.put(url_for("api_v1.member_api", uid=self.creator.id), token=self.get_token(),
+                                   json={
                                          "level": "admin",
                                          "status": "ban",
                                          "type": "sliver reader"

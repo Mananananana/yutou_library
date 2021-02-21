@@ -39,11 +39,18 @@ class BookAPI(MethodView):
     def put(self, bid):
         book = self.get_book(bid)
         form = BookUpdateForm().validate_for_api()
+        isbn = form.isbn.data
+        status = form.status.data
+        title = form.title.data
+        author = form.author.data
+        image_urls = form.image_urls.data
+
         with db.auto_commit():
-            book.isbn = form.isbn.data
-            book.status = form.status.data
-            book.title = form.title.data
-            book.author = form.author.data
+            book.isbn = isbn or book.isbn
+            book.status = status or book.status
+            book.title = title or book.title
+            book.author = author or book.author
+            book.image_urls = image_urls or book.image_urls
         return Success()
 
     @can("DELETE_BOOK")
@@ -70,9 +77,16 @@ class BooksAPI(MethodView):
         isbn = form.isbn.data
         title = form.title.data
         author = form.author.data
+        image_urls = form.image_urls.data
         lid = g.current_user.selecting_library_id
+
         with db.auto_commit():
-            book = Book(lid=lid, isbn=isbn, status=BookStatus.A, title=title, author=author)
+            book = Book(lid=lid,
+                        isbn=isbn,
+                        status=BookStatus.A,
+                        title=title,
+                        author=author,
+                        image_urls=image_urls)
             db.session.add(book)
         return Success()
 

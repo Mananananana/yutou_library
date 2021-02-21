@@ -115,9 +115,9 @@ class AccountTestCase(BaseTestCase):
 
     def test_modify_info(self):
         token = self.get_token()
-        response = self.client.patch(url_for("api_v1.modify_info"),
-                                     json={"gender": "female", "name": "xiaohong"},
-                                     headers=[('Authorization', "Bearer " + token)])
+        response = self.client.put(url_for("api_v1.modify_info"),
+                                   json={"gender": "female", "name": "xiaohong"},
+                                   headers=[('Authorization', "Bearer " + token)])
         self.assertEqual(response.status_code, 201)
         user = User.query.filter_by(phone="13912345678").first()
         self.assertIsNotNone(user)

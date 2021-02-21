@@ -53,12 +53,12 @@ class LibraryTestCase(BaseTestCase):
     def test_update_library_info(self):
         token = self.get_token()
         lid = self.creator.selecting_library_id
-        response = self.client.patch(url_for("api_v1.library_api", lid=lid), json={"name": "34j8erht834hturhvu$i2"},
-                                     headers=[("Authorization", "Bearer " + token)])
+        response = self.client.put(url_for("api_v1.library_api", lid=lid), json={"name": "34j8erht834hturhvu$i2"},
+                                   headers=[("Authorization", "Bearer " + token)])
         self.assertEqual(response.status_code, 400)
 
-        response = self.client.patch(url_for("api_v1.library_api", lid=lid), json={"name": "this is a test"},
-                                     headers=[("Authorization", "Bearer " + token)])
+        response = self.client.put(url_for("api_v1.library_api", lid=lid), json={"name": "this is a test"},
+                                   headers=[("Authorization", "Bearer " + token)])
         self.assertEqual(response.status_code, 201)
         library = Library.query.get(lid)
         self.assertIsNotNone(library)

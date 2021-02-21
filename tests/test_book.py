@@ -31,18 +31,18 @@ class BookTestCase(BaseTestCase):
         self.assertEqual(data["author"], self.normal_book.author)
 
     def test_modify_book_info(self):
-        response = self.client.patch(url_for("api_v1.book_api", bid=self.normal_book.id),
-                                     token=self.get_token(self.user),
-                                     json=dict(isbn="1234567891012",
-                                               status=BookStatus.B.value,
-                                               title="test123",
-                                               author="321test"))
+        response = self.client.put(url_for("api_v1.book_api", bid=self.normal_book.id),
+                                   token=self.get_token(self.user),
+                                   json=dict(isbn="1234567891012",
+                                             status=BookStatus.B.value,
+                                             title="test123",
+                                             author="321test"))
         self.assertEqual(response.status_code, 403)
-        response = self.client.patch(url_for("api_v1.book_api", bid=self.normal_book.id),
-                                     token=self.get_token(), json=dict(isbn="1234567891012",
-                                                                       status=BookStatus.B.value,
-                                                                       title="test123",
-                                                                       author="321test"))
+        response = self.client.put(url_for("api_v1.book_api", bid=self.normal_book.id),
+                                   token=self.get_token(), json=dict(isbn="1234567891012",
+                                                                     status=BookStatus.B.value,
+                                                                     title="test123",
+                                                                     author="321test"))
         self.assertEqual(response.status_code, 201)
         self.assertEqual(self.normal_book.isbn, "1234567891012")
         self.assertEqual(self.normal_book.status, BookStatus.B)

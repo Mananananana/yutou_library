@@ -14,5 +14,6 @@ class Book(db.Model):
     status = db.Column("b_status", db.Enum(BookStatus))
     title = db.Column("b_name", db.String(150))
     author = db.Column("b_author", db.String(150))
+    image_urls = db.Column("b_image_url", db.String(150))
 
     library = db.relationship("Library", back_populates="books")
