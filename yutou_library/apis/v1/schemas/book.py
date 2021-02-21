@@ -5,7 +5,8 @@ def book_schema(book):
         "isbn": book.isbn,
         "status": book.status.value,
         "title": book.title,
-        "author": book.author
+        "author": book.author,
+        "image_urls": book.image_urls
     }
 
 
