@@ -8,7 +8,7 @@ import click
 
 from yutou_library.settings import config
 from yutou_library.extensions import db
-from yutou_library.models import Attribution, Book, Borrow, Library, LibraryMeta, RType, User, Order
+from yutou_library.models import Attribute, Book, Borrow, Library, LibraryMeta, RType, User, Order
 from yutou_library.libs.error import APIException, HTTPException
 from yutou_library.libs.error_code import ServerError
 from yutou_library.apis.v1 import api_v1

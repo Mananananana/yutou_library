@@ -35,3 +35,10 @@ class BookStatus(Enum):
     C = "destroyed"
     D = "lost"
     E = "ordered"
+
+
+class BorrowState(Enum):
+    A = "borrowing"
+    B = "returned"
+    C = "ordering"
+    D = "canceled"
