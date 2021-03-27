@@ -18,4 +18,3 @@ class Library(db.Model):
     metas = db.relationship("LibraryMeta", back_populates="library", cascade="all")
     books = db.relationship("Book", back_populates="library", cascade="all")
     borrows = db.relationship("Borrow", back_populates="library", cascade="all")
-    orders = db.relationship("Order", back_populates="library", cascade="all")

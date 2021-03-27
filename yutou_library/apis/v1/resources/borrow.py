@@ -5,7 +5,7 @@ from flask import g, jsonify
 
 from yutou_library.apis.v1 import api_v1
 from yutou_library.apis.v1.auth import auth_required
-from yutou_library.models import Book, Borrow, Attribution
+from yutou_library.models import Book, Borrow, Attribute
 from yutou_library.libs.error_code import PermissionDenied, CanNotBorrow, Success
 from yutou_library.libs.enums import BookStatus
 from yutou_library.extensions import db

@@ -3,8 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from yutou_library.extensions import db
 from yutou_library.libs.enums import Gender
-from yutou_library.models import Attribution, Library, Borrow
-from yutou_library.libs.permissions import role_permission_map, ADMINS
+from yutou_library.models import Attribute, Library, Borrow
+from yutou_library.libs.permissions import role_permission_map
 
 
 class User(db.Model):
@@ -19,11 +19,10 @@ class User(db.Model):
     email = db.Column("u_email", db.String(50), unique=True, index=True)
     register_date = db.Column("u_date", db.DateTime, server_default=func.now())
     _password = db.Column("u_password", db.String(128), nullable=False)
-    selecting_library_id = db.Column("selecting_library", db.Integer, db.ForeignKey("libraries.l_id"), nullable=True)
+    selecting_library_id = db.Column("selecting_library", db.Integer, db.ForeignKey("library.l_id"), nullable=True)
 
     attributes = db.relationship("Attribute", back_populates="user", cascade="all")
     borrows = db.relationship("Borrow", back_populates="user")
-    orders = db.relationship("Order", back_populates="user")
     selecting_library = db.relationship("Library")
 
     def set_password(self, raw):
@@ -35,21 +34,23 @@ class User(db.Model):
         return check_password_hash(self._password, raw)
 
     def is_admin(self, lid):
-        attribute = Attribution.query.filter_by(uid=self.id, lid=lid or self.selecting_library_id).first()
-        if attribute is None:
-            return False
-        if attribute.level.value not in ADMINS:
-            return False
-        return True
+        pass
+        # attribute = Attribute.query.filter_by(uid=self.id, lid=lid or self.selecting_library_id).first()
+        # if attribute is None:
+        #     return False
+        # if attribute.level.value not in ADMINS:
+        #     return False
+        # return True
 
     def can(self, permission_name, lid=None):
-        attribute = Attribution.query.filter_by(uid=self.id, lid=lid or self.selecting_library_id).first()
-        if attribute is None:
-            return False
-        permissions = role_permission_map[attribute.level.value]
-        if permission_name not in permissions:
-            return False
-        return True
+        pass
+        # attribute = Attribute.query.filter_by(uid=self.id, lid=lid or self.selecting_library_id).first()
+        # if attribute is None:
+        #     return False
+        # permissions = role_permission_map[attribute.level.value]
+        # if permission_name not in permissions:
+        #     return False
+        # return True
 
     def can_borrow_or_order_in(self, lid, borrow=True):
         pass

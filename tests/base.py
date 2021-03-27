@@ -5,9 +5,10 @@ from flask.testing import FlaskClient as _FlaskClient
 
 from yutou_library import create_app
 from yutou_library.extensions import db
-from yutou_library.models import User, Library, Attribution, RType, Book, Borrow
-from yutou_library.libs.enums import LibraryStatus, AttributeLevel, AttributeStatus, BookStatus
+from yutou_library.models import User, Library, Attribute, RType, Book, Borrow, Role, Permission
+from yutou_library.libs.enums import LibraryStatus, BookStatus
 from yutou_library.apis.v1.auth import generate_token
+from yutou_library.libs.permissions import PERMISSIONS, ROLES, role_permission_map
 
 
 class FlaskClient(_FlaskClient):
@@ -54,38 +55,53 @@ class BaseTestCase(unittest.TestCase):
 
     def generate_test_rtype(self):
         with db.auto_commit():
-            golden = RType(id="golden reader", date=100, num=10)
-            sliver = RType(id="sliver reader", date=50, num=5)
-            copper = RType(id="copper reader", date=25, num=3)
+            self.golden = RType(name="golden reader", date=100, num=10)
+            self.sliver = RType(name="sliver reader", date=50, num=5)
+            self.copper = RType(name="copper reader", date=25, num=3)
 
-            db.session.add(golden)
-            db.session.add(sliver)
-            db.session.add(copper)
+            db.session.add(self.golden)
+            db.session.add(self.sliver)
+            db.session.add(self.copper)
 
-    def generate_test_attributions(self):
+    def generate_test_attributes(self):
         with db.auto_commit():
-            creator_attribute = Attribution(uid=self.creator.id, lid=self.library.id,
-                                            level=AttributeLevel.A, status=AttributeStatus.A,
-                                            type="golden reader")
-            admin_attribute = Attribution(uid=self.admin.id, lid=self.library.id,
-                                          level=AttributeLevel.B, status=AttributeStatus.A,
-                                          type="sliver reader")
-            user_attribute = Attribution(uid=self.user.id, lid=self.library.id,
-                                         level=AttributeLevel.C, status=AttributeStatus.A,
-                                         type="copper reader")
-            under_review_attribute = Attribution(uid=self.under_review.id, lid=self.library.id,
-                                                 level=AttributeLevel.D, status=AttributeStatus.A,
-                                                 type="copper reader")
+            creator_attribute = Attribute(uid=self.creator.id, lid=self.library.id,
+                                          rid=1, type=self.golden.id)
+            admin_attribute = Attribute(uid=self.admin.id, lid=self.library.id,
+                                        rid=2, type=self.sliver.id)
+            user_attribute = Attribute(uid=self.user.id, lid=self.library.id,
+                                       rid=3, type=self.copper.id)
+            under_review_attribute = Attribute(uid=self.under_review.id, lid=self.library.id,
+                                               rid=4, type=self.copper.id)
 
-            admin_attribute2 = Attribution(uid=self.admin.id, lid=self.library2.id,
-                                           level=AttributeLevel.A, status=AttributeStatus.A,
-                                           type="golden reader")
+            admin_attribute2 = Attribute(uid=self.admin.id, lid=self.library2.id,
+                                         rid=2, type=self.golden.id)
 
             db.session.add(creator_attribute)
             db.session.add(admin_attribute)
             db.session.add(user_attribute)
             db.session.add(under_review_attribute)
             db.session.add(admin_attribute2)
+
+    def generate_test_permissions(self):
+        with db.auto_commit():
+            for permission in PERMISSIONS:
+                p = Permission(name=permission)
+                db.session.add(p)
+
+    def generate_test_roles(self):
+        with db.auto_commit():
+            for role in ROLES:
+                r = Role(name=role)
+                db.session.add(r)
+
+    def generate_test_can(self):
+        with db.auto_commit():
+            for role_name, permission_names in role_permission_map.items():
+                role = Role.query.filter_by(name=role_name).first()
+                for permission_name in permission_names:
+                    permission = Permission.query.filter_by(name=permission_name).first()
+                    role.permissions.append(permission)
 
     def generate_test_books(self):
         with db.auto_commit():
@@ -106,7 +122,7 @@ class BaseTestCase(unittest.TestCase):
     def generate_test_borrows(self):
         with db.auto_commit():
             borrow_date = datetime.utcnow()
-            borrow = Borrow(id="1", uid=self.creator.id, lid=self.library.id,
+            borrow = Borrow(uid=self.creator.id, lid=self.library.id,
                             bid=self.borrowed_book.id, borrow_date=borrow_date,
                             deadtime=borrow_date+timedelta(3))
             db.session.add(borrow)
@@ -115,9 +131,12 @@ class BaseTestCase(unittest.TestCase):
         self.generate_test_users()
         self.generate_test_libraries()
         self.generate_test_rtype()
-        self.generate_test_attributions()
+        self.generate_test_attributes()
         self.generate_test_books()
         self.generate_test_borrows()
+        self.generate_test_roles()
+        self.generate_test_permissions()
+        self.generate_test_can()
 
         with db.auto_commit():
             self.creator.selecting_library_id = self.library.id
