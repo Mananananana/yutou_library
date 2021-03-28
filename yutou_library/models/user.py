@@ -3,8 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from yutou_library.extensions import db
 from yutou_library.libs.enums import Gender
-from yutou_library.models import Attribute, Library, Borrow
-from yutou_library.libs.permissions import role_permission_map
+from yutou_library.models import Attribute, Permission
 
 
 class User(db.Model):
@@ -33,43 +32,9 @@ class User(db.Model):
             return False
         return check_password_hash(self._password, raw)
 
-    def is_admin(self, lid):
-        pass
-        # attribute = Attribute.query.filter_by(uid=self.id, lid=lid or self.selecting_library_id).first()
-        # if attribute is None:
-        #     return False
-        # if attribute.level.value not in ADMINS:
-        #     return False
-        # return True
-
     def can(self, permission_name, lid=None):
-        pass
-        # attribute = Attribute.query.filter_by(uid=self.id, lid=lid or self.selecting_library_id).first()
-        # if attribute is None:
-        #     return False
-        # permissions = role_permission_map[attribute.level.value]
-        # if permission_name not in permissions:
-        #     return False
-        # return True
-
-    def can_borrow_or_order_in(self, lid, borrow=True):
-        pass
-        # library = Library.query.get(lid)
-        # if not library:
-        #     return False
-        # attribute = Attribution.query.filter_by(uid=self.id, lid=lid).first()
-        # if not attribute:
-        #     return False
-        # permissions = role_permission_map[attribute.level.value]
-        # if borrow:
-        #     if "BORROW" not in permissions:
-        #         return False
-        # else:
-        #     if "ORDER" not in permissions:
-        #         return False
-        # borrow_count = Borrow.query.filter_by(uid=self.id, lid=lid).count()
-        # order_count = Order.query.filter_by(uid=self.id, lid=lid).count()
-        # rtype = attribute.rtype
-        # if borrow_count + order_count >= rtype.num:
-        #     return False
-        # return rtype.date
+        permission = Permission.query.filter_by(name=permission_name).first()
+        attribute = Attribute.query.filter_by(uid=self.id, lid=lid or self.selecting_library_id).first()
+        if attribute is None:
+            return False
+        return permission in attribute.role.permissions

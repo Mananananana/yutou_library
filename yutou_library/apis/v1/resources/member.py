@@ -26,17 +26,15 @@ class MemberAPI(MethodView):
     @can("UPDATE_MEMBER_INFO")
     def put(self, uid):
         form = MemberForm().validate_for_api()
-        level = form.level.data
-        status = form.status.data
         type = form.type.data
+        rid = form.type.data
 
         user = g.current_user
         lid = user.selecting_library_id
 
         attribute = Attribute.query.filter_by(uid=uid, lid=lid).first_or_404()
         with db.auto_commit():
-            attribute.level = level or attribute.level
-            attribute.status = status or attribute.status
+            attribute.rid = rid or attribute.rid
             attribute.type = type or attribute.type
         return Success()
 

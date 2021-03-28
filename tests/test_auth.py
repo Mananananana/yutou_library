@@ -68,10 +68,10 @@ class AuthTestCase(BaseTestCase):
             user = User.query.filter_by(email="123456@qq.com").first()
             library = Library.query.filter_by(name="test_library").first()
             user.selecting_library = library
-        response = self.client.get(url_for("nothing"), headers=[("Authorization", "Bearer " + token)])
+        response = self.client.get(url_for("nothing"), token=token)
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get(url_for("func"), headers=[("Authorization", "Bearer " + token)])
+        response = self.client.get(url_for("func"), token=token)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(b"hello world" in response.data)
 

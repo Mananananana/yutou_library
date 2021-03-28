@@ -13,3 +13,4 @@ class Attribute(db.Model):
     library = db.relationship("Library", back_populates="attributes", lazy="joined")
     user = db.relationship("User", back_populates="attributes", lazy="joined")
     rtype = db.relationship("RType")
+    role = db.relationship("Role")

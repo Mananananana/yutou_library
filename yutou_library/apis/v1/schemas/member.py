@@ -1,8 +1,8 @@
 def attribute_schema(attribute):
     return {
         "uid": attribute.uid,
-        "level": attribute.level.value,
-        "status": attribute.status.value,
+        "lid": attribute.lid,
+        "rid": attribute.rid,
         "type": attribute.type
     }
 

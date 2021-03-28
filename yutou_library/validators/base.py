@@ -23,7 +23,7 @@ class Optional(object):
 
     def __init__(self, strip_whitespace=True):
         if strip_whitespace:
-            self.string_check = lambda s: s.strip()
+            self.string_check = lambda s: s.strip() if isinstance(s, str) else s
         else:
             self.string_check = lambda s: s
 

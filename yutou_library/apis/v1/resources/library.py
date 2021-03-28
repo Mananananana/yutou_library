@@ -4,7 +4,7 @@ from flask.views import MethodView
 from yutou_library.apis.v1.auth import auth_required, select_library, can
 from yutou_library.validators.library import LibraryForm
 from yutou_library.extensions import db
-from yutou_library.models import Library, Attribute
+from yutou_library.models import Library, Attribute, RType, Role
 from yutou_library.libs.enums import LibraryStatus
 from yutou_library.libs.error_code import Success, PermissionDenied, AlreadyJoin
 from yutou_library.apis.v1 import api_v1
@@ -15,21 +15,24 @@ class LibrariesAPI(MethodView):
     decorators = [auth_required]
 
     def post(self):
+        # 创建图书馆
         form = LibraryForm().validate_for_api()
         name = form.name.data
         with db.auto_commit():
             new_library = Library(name=name, status=LibraryStatus.A)
             db.session.add(new_library)
             db.session.flush()
+            golden = RType.query.filter_by(name="golden reader").first()
+            creator = Role.query.filter_by(name="creator").first()
             creator_attribute = Attribute(lid=new_library.id,
                                           uid=g.current_user.id,
-                                          level=AttributeLevel.A,
-                                          status=AttributeStatus.A,
-                                          type="golden reader")
+                                          type=golden.id,
+                                          rid=creator.id)
             db.session.add(creator_attribute)
         return Success()
 
     def get(self):
+        # 获取加入的所有图书馆
         user = g.current_user
         return jsonify(libraries_schema(user.attributes)), 200
 
@@ -38,10 +41,12 @@ class LibraryAPI(MethodView):
     decorators = [auth_required]
 
     def get(self, lid):
+        # 获取图书馆信息
         library = Library.query.get(lid)
         return jsonify(library_schema(library)), 200
 
     def put(self, lid):
+        # 更改图书馆信息
         if not g.current_user.can("UPDATE_LIBRARY_INFO", lid):
             return PermissionDenied()
         form = LibraryForm().validate_for_api()
@@ -61,12 +66,13 @@ class JoinLibraryAPI(MethodView):
         attribute = Attribute.query.filter_by(uid=user.id, lid=lid).first()
         if attribute is not None:
             return AlreadyJoin()
+        role = Role.query.filter_by(name="under_review").first()
+        copper = RType.query.filter_by(name="copper reader").first()
         with db.auto_commit():
             attribute = Attribute(uid=user.id,
                                   lid=lid,
-                                  level=AttributeLevel.D,
-                                  status=AttributeStatus.A,
-                                  type="copper reader")
+                                  rid=role.id,
+                                  type=copper.id)
             db.session.add(attribute)
         return Success()
 

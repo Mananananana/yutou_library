@@ -6,7 +6,7 @@ from flask.testing import FlaskClient as _FlaskClient
 from yutou_library import create_app
 from yutou_library.extensions import db
 from yutou_library.models import User, Library, Attribute, RType, Book, Borrow, Role, Permission
-from yutou_library.libs.enums import LibraryStatus, BookStatus
+from yutou_library.libs.enums import LibraryStatus, BookStatus, BorrowState
 from yutou_library.apis.v1.auth import generate_token
 from yutou_library.libs.permissions import PERMISSIONS, ROLES, role_permission_map
 
@@ -124,7 +124,7 @@ class BaseTestCase(unittest.TestCase):
             borrow_date = datetime.utcnow()
             borrow = Borrow(uid=self.creator.id, lid=self.library.id,
                             bid=self.borrowed_book.id, borrow_date=borrow_date,
-                            deadtime=borrow_date+timedelta(3))
+                            deadtime=borrow_date+timedelta(3), state=BorrowState.A)
             db.session.add(borrow)
 
     def generate_test_sample(self):

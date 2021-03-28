@@ -5,7 +5,7 @@ from flask import current_app, request, g
 
 from yutou_library.models import User
 from yutou_library.libs.error_code import TokenTypeError, TokenMissing, InvalidToken, \
-    NotSelectedLibrary, PermissionDenied, NoLibraryId
+    NoLibrarySelected, PermissionDenied, NoLibraryId
 
 
 def generate_token(user, expires_in=3600, **kwargs):
@@ -73,7 +73,7 @@ def select_library(func):
     def decorator(*args, **kwargs):
         user = g.current_user
         if user.selecting_library_id is None:
-            return NotSelectedLibrary()
+            return NoLibrarySelected()
         return func(*args, **kwargs)
     return decorator
 
@@ -85,7 +85,7 @@ def can(permission_name, library_id=None):
             user = g.current_user
             lid = library_id or user.selecting_library_id
             if lid is None:
-                return NoLibraryId()
+                return NoLibrarySelected()
             if not user.can(permission_name, lid):
                 return PermissionDenied()
             return func(*args, **kwargs)

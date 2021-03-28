@@ -90,9 +90,9 @@ class InvalidToken(APIException):
         return [("Content-Type", "application/json; charset=utf-8"), ("WWW-Authenticate", "Bearer")]
 
 
-class NotSelectedLibrary(APIException):
+class NoLibrarySelected(APIException):
     code = 400
-    msg = "you did't select any library"
+    msg = "you did not select any library"
     error_code = 1012
 
 
@@ -103,8 +103,8 @@ class PermissionDenied(APIException):
 
 
 class NoLibraryId(APIException):
-    code = 500
-    msg = "There is no corresponding library, please contact the administrator"
+    code = 403
+    msg = "You have not selected library"
     error_code = 998
 
 

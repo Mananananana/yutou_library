@@ -11,7 +11,7 @@ class BorrowTestCase(BaseTestCase):
     def test_borrow_book(self):
         response = self.client.post(url_for("api_v1.borrow_api", bid=self.normal_book.id),
                                     token=self.get_token(self.under_review))
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 400)
 
         response = self.client.post(url_for("api_v1.borrow_api", bid=self.normal_book.id),
                                     token=self.get_token(self.user))

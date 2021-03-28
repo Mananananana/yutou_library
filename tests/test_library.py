@@ -3,7 +3,7 @@ import unittest
 from flask import url_for
 
 from tests.base import BaseTestCase
-from yutou_library.models import User, Attribution, Library
+from yutou_library.models import User, Attribute, Library
 from yutou_library.extensions import db
 from yutou_library.libs.enums import AttributeLevel, AttributeStatus, LibraryStatus
 
@@ -36,7 +36,7 @@ class LibraryTestCase(BaseTestCase):
 
         self.assertIsNotNone(user)
         self.assertIsNotNone(library)
-        attribute = Attribution.query.filter_by(uid=user.id, lid=library.id).first()
+        attribute = Attribute.query.filter_by(uid=user.id, lid=library.id).first()
         self.assertIsNotNone(attribute)
 
     def test_get_library_info(self):
@@ -80,11 +80,9 @@ class LibraryTestCase(BaseTestCase):
         response = self.client.get(url_for("api_v1.join_library", lid=lid),
                                    headers=[("Authorization", "Bearer " + token)])
         self.assertEqual(response.status_code, 201)
-        attribute = Attribution.query.filter_by(uid=user.id, lid=lid).first()
+        attribute = Attribute.query.filter_by(uid=user.id, lid=lid).first()
         self.assertIsNotNone(attribute)
-        self.assertEqual(attribute.level, AttributeLevel.D)
-        self.assertEqual(attribute.status, AttributeStatus.A)
-        self.assertEqual(attribute.type, "copper reader")
+        self.assertEqual(attribute.type, self.copper.id)
 
     def test_select_library(self):
         self.assertEqual(self.admin.selecting_library_id, self.library.id)
